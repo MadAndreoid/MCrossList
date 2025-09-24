@@ -1,0 +1,30 @@
+@page "/"
+@using MCrossList.Client.Services
+
+@attribute [Authorize]
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+@inject DialogService DialogService
+@inject ContextMenuService ContextMenuService
+@inject TooltipService TooltipService
+@inject NotificationService NotificationService
+@inject IVintedService VintedService
+
+<PageTitle>Index</PageTitle>
+
+<RadzenRow Gap="5" RowGap="5">
+    <RadzenText TextStyle="TextStyle.DisplayH3">
+        Numero Oggetti: @ItemFounds    
+    </RadzenText>
+    <RadzenButton Text="Test" Click="Update" />
+</RadzenRow>
+
+@code {
+    private int ItemFounds = 0;
+
+    private async Task Update()
+    {
+        await VintedService.Update();
+        ItemFounds = VintedService.Items;
+    }
+}
