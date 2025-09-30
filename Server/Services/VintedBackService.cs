@@ -20,7 +20,6 @@ namespace MCrossList.Server.Services
             var pw = await InitializePlaywrigth();
             await using var browser = await pw.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
             {
-                ExecutablePath = chromiumpath,
                 Headless = false
             });
             var page = await browser.NewPageAsync();
@@ -54,7 +53,6 @@ namespace MCrossList.Server.Services
             var pw = await InitializePlaywrigth();
             await using var browser = await pw.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
             {
-                ExecutablePath = chromiumpath,
                 Headless = false
             });
             var page = await browser.NewPageAsync();
