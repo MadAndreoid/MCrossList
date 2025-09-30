@@ -17,7 +17,7 @@ namespace MCrossList.Server.Services
 
         public async Task<int> GetProducts()
         {
-            var pw = await InitializePlaywrigth();
+            var pw = await Playwright.CreateAsync();
             await using var browser = await pw.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
             {
                 ExecutablePath = chromiumpath,
@@ -51,7 +51,7 @@ namespace MCrossList.Server.Services
 
         public async Task<int> GetProductsDetails()
         {
-            var pw = await InitializePlaywrigth();
+            var pw = await Playwright.CreateAsync();
             await using var browser = await pw.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
             {
                 ExecutablePath = chromiumpath,
