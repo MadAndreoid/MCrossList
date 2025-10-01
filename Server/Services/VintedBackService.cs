@@ -20,6 +20,10 @@ namespace MCrossList.Server.Services
             var pw = await InitializePlaywrigth();
             await using var browser = await pw.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
             {
+<<<<<<<<< Temporary merge branch 1
+=========
+                ExecutablePath = chromiumpath,
+>>>>>>>>> Temporary merge branch 2
                 Headless = false
             });
             var page = await browser.NewPageAsync();
