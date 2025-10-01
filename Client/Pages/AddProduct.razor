@@ -1,0 +1,318 @@
+@page "/add-product"
+@inject IJSRuntime JSRuntime
+@attribute [Authorize]
+@inject NavigationManager NavigationManager
+@inject DialogService DialogService
+@inject ContextMenuService ContextMenuService
+@inject TooltipService TooltipService
+@inject NotificationService NotificationService
+
+@inject dbService dbService
+
+<PageTitle>Add Product</PageTitle>
+    <RadzenColumn SizeMD=12>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">Cannot save Product</RadzenAlert>
+        <RadzenTemplateForm TItem="MCrossList.Server.Models.db.Product" Data="@(product)" Visible="@(product != null)" Submit="@FormSubmit">
+          <RadzenStack>
+            <RadzenFormField Text="Name" Variant="Variant.Filled">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(product.Name)" Name="Name" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Description" Variant="Variant.Filled">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(product.Description)" Name="Description" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Dimension" Variant="Variant.Filled">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(product.Dimension)" Name="Dimension" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Product Store" Variant="Variant.Filled">
+                  <ChildContent>
+                    <RadzenDropDownDataGrid Data="@(storesForProductStoreID)" TextProperty="Name" ValueProperty="ID" AllowClear=true
+                          style="display: block; width: 100%" @bind-Value="@(product.Product_Store_ID)" Name="Product_Store_ID"
+                        SelectedValue=@storesForProductStoreIDValue Count=@storesForProductStoreIDCount LoadData=@storesForProductStoreIDLoadData />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Product Category" Variant="Variant.Filled">
+                  <ChildContent>
+                    <RadzenDropDownDataGrid Data="@(categoriesForProductCategoryID)" TextProperty="Name" ValueProperty="ID" AllowClear=true
+                          style="display: block; width: 100%" @bind-Value="@(product.Product_Category_ID)" Name="Product_Category_ID"
+                        SelectedValue=@categoriesForProductCategoryIDValue Count=@categoriesForProductCategoryIDCount LoadData=@categoriesForProductCategoryIDLoadData />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Product Brand" Variant="Variant.Filled">
+                  <ChildContent>
+                    <RadzenDropDownDataGrid Data="@(brandsForProductBrandID)" TextProperty="Name" ValueProperty="ID" AllowClear=true
+                          style="display: block; width: 100%" @bind-Value="@(product.Product_Brand_ID)" Name="Product_Brand_ID"
+                        SelectedValue=@brandsForProductBrandIDValue Count=@brandsForProductBrandIDCount LoadData=@brandsForProductBrandIDLoadData />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Product Size" Variant="Variant.Filled">
+                  <ChildContent>
+                    <RadzenDropDownDataGrid Data="@(sizesForProductSizeID)" TextProperty="Name" ValueProperty="ID" AllowClear=true
+                          style="display: block; width: 100%" @bind-Value="@(product.Product_Size_ID)" Name="Product_Size_ID"
+                        SelectedValue=@sizesForProductSizeIDValue Count=@sizesForProductSizeIDCount LoadData=@sizesForProductSizeIDLoadData />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Product Condition" Variant="Variant.Filled">
+                  <ChildContent>
+                    <RadzenDropDownDataGrid Data="@(conditionsForProductConditionID)" TextProperty="Name" ValueProperty="ID" AllowClear=true
+                          style="display: block; width: 100%" @bind-Value="@(product.Product_Condition_ID)" Name="Product_Condition_ID"
+                        SelectedValue=@conditionsForProductConditionIDValue Count=@conditionsForProductConditionIDCount LoadData=@conditionsForProductConditionIDLoadData />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Product Color" Variant="Variant.Filled">
+                  <ChildContent>
+                    <RadzenDropDownDataGrid Data="@(colorsForProductColorID)" TextProperty="Name" ValueProperty="ID" AllowClear=true
+                          style="display: block; width: 100%" @bind-Value="@(product.Product_Color_ID)" Name="Product_Color_ID"
+                        SelectedValue=@colorsForProductColorIDValue Count=@colorsForProductColorIDCount LoadData=@colorsForProductColorIDLoadData />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="Product Material" Variant="Variant.Filled">
+                  <ChildContent>
+                    <RadzenDropDownDataGrid Data="@(materialsForProductMaterialID)" TextProperty="Name" ValueProperty="ID" AllowClear=true
+                          style="display: block; width: 100%" @bind-Value="@(product.Product_Material_ID)" Name="Product_Material_ID"
+                        SelectedValue=@materialsForProductMaterialIDValue Count=@materialsForProductMaterialIDCount LoadData=@materialsForProductMaterialIDLoadData />
+              </ChildContent>
+            </RadzenFormField>
+          </RadzenStack>
+          <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                    <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Save" Variant="Variant.Flat" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancel" Variant="Variant.Flat" Click="@CancelButtonClick"  />
+          </RadzenStack>
+        </RadzenTemplateForm>
+    </RadzenColumn>
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        product = new MCrossList.Server.Models.db.Product();
+    }
+    protected bool errorVisible;
+    protected MCrossList.Server.Models.db.Product product;
+
+    protected IEnumerable<MCrossList.Server.Models.db.Store> storesForProductStoreID;
+
+    protected IEnumerable<MCrossList.Server.Models.db.Category> categoriesForProductCategoryID;
+
+    protected IEnumerable<MCrossList.Server.Models.db.Brand> brandsForProductBrandID;
+
+    protected IEnumerable<MCrossList.Server.Models.db.Size> sizesForProductSizeID;
+
+    protected IEnumerable<MCrossList.Server.Models.db.Condition> conditionsForProductConditionID;
+
+    protected IEnumerable<MCrossList.Server.Models.db.Color> colorsForProductColorID;
+
+    protected IEnumerable<MCrossList.Server.Models.db.Material> materialsForProductMaterialID;
+
+
+    protected int storesForProductStoreIDCount;
+    protected MCrossList.Server.Models.db.Store storesForProductStoreIDValue;
+    protected async Task storesForProductStoreIDLoadData(LoadDataArgs args)
+    {
+        try
+        {
+            var result = await dbService.GetStores(top: args.Top, skip: args.Skip, count:args.Top != null && args.Skip != null, filter: $"contains(Name, '{(!string.IsNullOrEmpty(args.Filter) ? args.Filter : "")}')", orderby: $"{args.OrderBy}");
+            storesForProductStoreID = result.Value.AsODataEnumerable();
+            storesForProductStoreIDCount = result.Count;
+
+            if (!object.Equals(product.Product_Store_ID, null))
+            {
+                var valueResult = await dbService.GetStores(filter: $"ID eq {product.Product_Store_ID}");
+                var firstItem = valueResult.Value.FirstOrDefault();
+                if (firstItem != null)
+                {
+                    storesForProductStoreIDValue = firstItem;
+                }
+            }
+
+        }
+        catch (System.Exception ex)
+        {
+            NotificationService.Notify(new NotificationMessage(){ Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Unable to load Product_Store" });
+        }
+    }
+
+    protected int categoriesForProductCategoryIDCount;
+    protected MCrossList.Server.Models.db.Category categoriesForProductCategoryIDValue;
+    protected async Task categoriesForProductCategoryIDLoadData(LoadDataArgs args)
+    {
+        try
+        {
+            var result = await dbService.GetCategories(top: args.Top, skip: args.Skip, count:args.Top != null && args.Skip != null, filter: $"contains(Name, '{(!string.IsNullOrEmpty(args.Filter) ? args.Filter : "")}')", orderby: $"{args.OrderBy}");
+            categoriesForProductCategoryID = result.Value.AsODataEnumerable();
+            categoriesForProductCategoryIDCount = result.Count;
+
+            if (!object.Equals(product.Product_Category_ID, null))
+            {
+                var valueResult = await dbService.GetCategories(filter: $"ID eq {product.Product_Category_ID}");
+                var firstItem = valueResult.Value.FirstOrDefault();
+                if (firstItem != null)
+                {
+                    categoriesForProductCategoryIDValue = firstItem;
+                }
+            }
+
+        }
+        catch (System.Exception ex)
+        {
+            NotificationService.Notify(new NotificationMessage(){ Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Unable to load Product_Category" });
+        }
+    }
+
+    protected int brandsForProductBrandIDCount;
+    protected MCrossList.Server.Models.db.Brand brandsForProductBrandIDValue;
+    protected async Task brandsForProductBrandIDLoadData(LoadDataArgs args)
+    {
+        try
+        {
+            var result = await dbService.GetBrands(top: args.Top, skip: args.Skip, count:args.Top != null && args.Skip != null, filter: $"contains(Name, '{(!string.IsNullOrEmpty(args.Filter) ? args.Filter : "")}')", orderby: $"{args.OrderBy}");
+            brandsForProductBrandID = result.Value.AsODataEnumerable();
+            brandsForProductBrandIDCount = result.Count;
+
+            if (!object.Equals(product.Product_Brand_ID, null))
+            {
+                var valueResult = await dbService.GetBrands(filter: $"ID eq {product.Product_Brand_ID}");
+                var firstItem = valueResult.Value.FirstOrDefault();
+                if (firstItem != null)
+                {
+                    brandsForProductBrandIDValue = firstItem;
+                }
+            }
+
+        }
+        catch (System.Exception ex)
+        {
+            NotificationService.Notify(new NotificationMessage(){ Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Unable to load Product_Brand" });
+        }
+    }
+
+    protected int sizesForProductSizeIDCount;
+    protected MCrossList.Server.Models.db.Size sizesForProductSizeIDValue;
+    protected async Task sizesForProductSizeIDLoadData(LoadDataArgs args)
+    {
+        try
+        {
+            var result = await dbService.GetSizes(top: args.Top, skip: args.Skip, count:args.Top != null && args.Skip != null, filter: $"contains(Name, '{(!string.IsNullOrEmpty(args.Filter) ? args.Filter : "")}')", orderby: $"{args.OrderBy}");
+            sizesForProductSizeID = result.Value.AsODataEnumerable();
+            sizesForProductSizeIDCount = result.Count;
+
+            if (!object.Equals(product.Product_Size_ID, null))
+            {
+                var valueResult = await dbService.GetSizes(filter: $"ID eq {product.Product_Size_ID}");
+                var firstItem = valueResult.Value.FirstOrDefault();
+                if (firstItem != null)
+                {
+                    sizesForProductSizeIDValue = firstItem;
+                }
+            }
+
+        }
+        catch (System.Exception ex)
+        {
+            NotificationService.Notify(new NotificationMessage(){ Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Unable to load Product_Size" });
+        }
+    }
+
+    protected int conditionsForProductConditionIDCount;
+    protected MCrossList.Server.Models.db.Condition conditionsForProductConditionIDValue;
+    protected async Task conditionsForProductConditionIDLoadData(LoadDataArgs args)
+    {
+        try
+        {
+            var result = await dbService.GetConditions(top: args.Top, skip: args.Skip, count:args.Top != null && args.Skip != null, filter: $"contains(Name, '{(!string.IsNullOrEmpty(args.Filter) ? args.Filter : "")}')", orderby: $"{args.OrderBy}");
+            conditionsForProductConditionID = result.Value.AsODataEnumerable();
+            conditionsForProductConditionIDCount = result.Count;
+
+            if (!object.Equals(product.Product_Condition_ID, null))
+            {
+                var valueResult = await dbService.GetConditions(filter: $"ID eq {product.Product_Condition_ID}");
+                var firstItem = valueResult.Value.FirstOrDefault();
+                if (firstItem != null)
+                {
+                    conditionsForProductConditionIDValue = firstItem;
+                }
+            }
+
+        }
+        catch (System.Exception ex)
+        {
+            NotificationService.Notify(new NotificationMessage(){ Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Unable to load Product_Condition" });
+        }
+    }
+
+    protected int colorsForProductColorIDCount;
+    protected MCrossList.Server.Models.db.Color colorsForProductColorIDValue;
+    protected async Task colorsForProductColorIDLoadData(LoadDataArgs args)
+    {
+        try
+        {
+            var result = await dbService.GetColors(top: args.Top, skip: args.Skip, count:args.Top != null && args.Skip != null, filter: $"contains(Name, '{(!string.IsNullOrEmpty(args.Filter) ? args.Filter : "")}')", orderby: $"{args.OrderBy}");
+            colorsForProductColorID = result.Value.AsODataEnumerable();
+            colorsForProductColorIDCount = result.Count;
+
+            if (!object.Equals(product.Product_Color_ID, null))
+            {
+                var valueResult = await dbService.GetColors(filter: $"ID eq {product.Product_Color_ID}");
+                var firstItem = valueResult.Value.FirstOrDefault();
+                if (firstItem != null)
+                {
+                    colorsForProductColorIDValue = firstItem;
+                }
+            }
+
+        }
+        catch (System.Exception ex)
+        {
+            NotificationService.Notify(new NotificationMessage(){ Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Unable to load Product_Color" });
+        }
+    }
+
+    protected int materialsForProductMaterialIDCount;
+    protected MCrossList.Server.Models.db.Material materialsForProductMaterialIDValue;
+    protected async Task materialsForProductMaterialIDLoadData(LoadDataArgs args)
+    {
+        try
+        {
+            var result = await dbService.GetMaterials(top: args.Top, skip: args.Skip, count:args.Top != null && args.Skip != null, filter: $"contains(Name, '{(!string.IsNullOrEmpty(args.Filter) ? args.Filter : "")}')", orderby: $"{args.OrderBy}");
+            materialsForProductMaterialID = result.Value.AsODataEnumerable();
+            materialsForProductMaterialIDCount = result.Count;
+
+            if (!object.Equals(product.Product_Material_ID, null))
+            {
+                var valueResult = await dbService.GetMaterials(filter: $"ID eq {product.Product_Material_ID}");
+                var firstItem = valueResult.Value.FirstOrDefault();
+                if (firstItem != null)
+                {
+                    materialsForProductMaterialIDValue = firstItem;
+                }
+            }
+
+        }
+        catch (System.Exception ex)
+        {
+            NotificationService.Notify(new NotificationMessage(){ Severity = NotificationSeverity.Error, Summary = $"Error", Detail = $"Unable to load Product_Material" });
+        }
+    }
+    protected async Task FormSubmit()
+    {
+        try
+        {
+            await dbService.CreateProduct(product);
+            DialogService.Close(product);
+        }
+        catch (Exception ex)
+        {
+            errorVisible = true;
+        }
+    }
+
+    protected async Task CancelButtonClick(MouseEventArgs args)
+    {
+        DialogService.Close(null);
+    }
+}

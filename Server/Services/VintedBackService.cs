@@ -7,7 +7,7 @@ namespace MCrossList.Server.Services
 {
     public class VintedBackService
     {
-        string chromiumpath = @"chromium\bin\chrome.exe";
+        
         private string site2 = "https://www.vinted.it/member/272115553";
         private string site = "https://www.vinted.it/member/71765100";
         public VintedBackService()
@@ -17,10 +17,9 @@ namespace MCrossList.Server.Services
 
         public async Task<int> GetProducts()
         {
-            var pw = await Playwright.CreateAsync();
+            var pw = await InitializePlaywrigth();
             await using var browser = await pw.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
             {
-                ExecutablePath = chromiumpath,
                 Headless = false
             });
             var page = await browser.NewPageAsync();
@@ -51,16 +50,15 @@ namespace MCrossList.Server.Services
 
         public async Task<int> GetProductsDetails()
         {
-            var pw = await Playwright.CreateAsync();
+            var pw = await InitializePlaywrigth();
             await using var browser = await pw.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
             {
-                ExecutablePath = chromiumpath,
                 Headless = false
             });
+
             var page = await browser.NewPageAsync();
 
             await page.GotoAsync(site, new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
-
 
             int batch = 0;
             int prevCount = 0;
@@ -82,18 +80,34 @@ namespace MCrossList.Server.Services
                     await itemPage.GotoAsync("https://www.vinted.it" + href, new PageGotoOptions { WaitUntil = WaitUntilState.NetworkIdle });
 
                     await itemPage.Locator("xpath=/html/body/div[17]/div[2]/div/div[1]/div/div[2]/div/button[1]").ClickAsync();
-
+                    
+                    await itemPage.EvaluateAsync("window.scrollTo(0, document.body.scrollHeight)");
                     //Ottengo i dati
 
                     //Titolo
-                    var h1 = itemPage.Locator("xpath=/html/body/div[1]/div/main/div/div/div/div/div/div/main/div[1]/aside/div[2]/div[1]/div/div/div/div/div/div[1]/div[1]/div[1]/h1");
-                    var Title = await h1.InnerTextAsync();
+                    string Title;
+                    {
+                        var h1 = itemPage.Locator("xpath=/html/body/div[1]/div/main/div/div/div/div/div/div/main/div[1]/aside/div[2]/div[1]/div/div/div/div/div/div[1]/div[1]/div[1]/h1");
+                        Title = await h1.InnerTextAsync();
+                    }
 
                     //Categoria
-                    var liCount = await itemPage.Locator("xpath=/html/body/div[1]/div/main/div/div/div/div/div/div/main/div[1]/section/div[2]/div[1]/div/div/ul").Locator("> li").CountAsync();
-                    var span = itemPage.Locator($"xpath=/html/body/div[1]/div/main/div/div/div/div/div/div/main/div[1]/section/div[2]/div[1]/div/div/ul/li[{liCount}]/a/span");
-                    var Category = await span.InnerTextAsync();
-                    
+                    string Category;
+                    {
+                        var liCount = await itemPage.Locator("xpath=/html/body/div[1]/div/main/div/div/div/div/div/div/main/div[1]/section/div[2]/div[1]/div/div/ul").Locator("> li").CountAsync();
+                        var span = itemPage.Locator($"xpath=/html/body/div[1]/div/main/div/div/div/div/div/div/main/div[1]/section/div[2]/div[1]/div/div/ul/li[{liCount - 1}]/a/span");
+                        Category = await span.InnerTextAsync();
+                    }
+
+                    await itemPage.Locator("xpath=/html/body/div[1]/div/main/div/div/div/div/div/div/main/div[1]/aside/div[2]/div[1]/div/div/div/div/div/div[2]/div[3]/div/div/div[1]/button/span").ClickAsync();
+
+                    //Descrizione
+                    string Description;
+                    {
+                        var InnerText = await itemPage.Locator("xpath=/html/body/div[1]/div/main/div/div/div/div/div/div/main/div[1]/aside/div[2]/div[1]/div/div/div/div/div/div[2]/div[3]/div/div/div[1]/div/span").AllInnerTextsAsync();
+                        Description = string.Join("\n", InnerText);
+                    }
+
                     
                     
                     int x = 0;

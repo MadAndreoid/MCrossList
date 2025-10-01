@@ -1,0 +1,61 @@
+@page "/add-store"
+@inject IJSRuntime JSRuntime
+@attribute [Authorize]
+@inject NavigationManager NavigationManager
+@inject DialogService DialogService
+@inject ContextMenuService ContextMenuService
+@inject TooltipService TooltipService
+@inject NotificationService NotificationService
+
+@inject dbService dbService
+
+<PageTitle>Add Store</PageTitle>
+    <RadzenColumn SizeMD=12>
+        <RadzenAlert Shade="Shade.Lighter" Variant="Variant.Flat" Size="AlertSize.Small" AlertStyle="AlertStyle.Danger" Visible="@errorVisible">Cannot save Store</RadzenAlert>
+        <RadzenTemplateForm TItem="MCrossList.Server.Models.db.Store" Data="@(store)" Visible="@(store != null)" Submit="@FormSubmit">
+          <RadzenStack>
+            <RadzenFormField Text="Name" Variant="Variant.Filled">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(store.Name)" Name="Name" />
+              </ChildContent>
+            </RadzenFormField>
+            <RadzenFormField Text="URL" Variant="Variant.Filled">
+                  <ChildContent>
+                    <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(store.URL)" Name="URL" />
+              </ChildContent>
+            </RadzenFormField>
+          </RadzenStack>
+          <RadzenStack style="margin-top:1rem;" Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                    <RadzenButton ButtonStyle="ButtonStyle.Primary" ButtonType="ButtonType.Submit" Icon="save" Text="Save" Variant="Variant.Flat" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancel" Variant="Variant.Flat" Click="@CancelButtonClick"  />
+          </RadzenStack>
+        </RadzenTemplateForm>
+    </RadzenColumn>
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        store = new MCrossList.Server.Models.db.Store();
+    }
+    protected bool errorVisible;
+    protected MCrossList.Server.Models.db.Store store;
+
+    protected async Task FormSubmit()
+    {
+        try
+        {
+            await dbService.CreateStore(store);
+            DialogService.Close(store);
+        }
+        catch (Exception ex)
+        {
+            errorVisible = true;
+        }
+    }
+
+    protected async Task CancelButtonClick(MouseEventArgs args)
+    {
+        DialogService.Close(null);
+    }
+}

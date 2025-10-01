@@ -18,5 +18,6 @@ builder.Services.AddTransient(sp => sp.GetRequiredService<IHttpClientFactory>().
 builder.Services.AddScoped<MCrossList.Client.SecurityService>();
 builder.Services.AddScoped<AuthenticationStateProvider, MCrossList.Client.ApplicationAuthenticationStateProvider>();
 builder.Services.AddScoped<MCrossList.Client.Services.IVintedService, MCrossList.Client.Services.VintedService>();
+builder.Services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 var host = builder.Build();
 await host.RunAsync();

@@ -6,9 +6,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="CMS365.EbaySharp" Version="8.2.3" />
     <PackageReference Include="Microsoft.Playwright" Version="1.55.0" />
     <PackageReference Include="Radzen.Blazor" Version="*" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.0" />
+    <PackageReference Include="ShopifySharp" Version="6.25.4" />
     <ProjectReference Include="..\Client\MCrossList.Client.csproj" />
     <PackageReference Include="DocumentFormat.OpenXml" Version="2.20.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />

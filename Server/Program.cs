@@ -29,6 +29,14 @@ builder.Services.AddDbContext<MCrossList.Server.Data.dbContext>(options =>
 builder.Services.AddControllers().AddOData(opt =>
 {
     var oDataBuilderdb = new ODataConventionModelBuilder();
+    oDataBuilderdb.EntitySet<MCrossList.Server.Models.db.Brand>("Brands");
+    oDataBuilderdb.EntitySet<MCrossList.Server.Models.db.Category>("Categories");
+    oDataBuilderdb.EntitySet<MCrossList.Server.Models.db.Color>("Colors");
+    oDataBuilderdb.EntitySet<MCrossList.Server.Models.db.Condition>("Conditions");
+    oDataBuilderdb.EntitySet<MCrossList.Server.Models.db.Material>("Materials");
+    oDataBuilderdb.EntitySet<MCrossList.Server.Models.db.Product>("Products");
+    oDataBuilderdb.EntitySet<MCrossList.Server.Models.db.Size>("Sizes");
+    oDataBuilderdb.EntitySet<MCrossList.Server.Models.db.Store>("Stores");
     opt.AddRouteComponents("odata/db", oDataBuilderdb.GetEdmModel()).Count().Filter().OrderBy().Expand().Select().SetMaxTop(null).TimeZone = TimeZoneInfo.Utc;
 });
 builder.Services.AddHttpClient("MCrossList.Server").ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { UseCookies = false }).AddHeaderPropagation(o => o.Headers.Add("Cookie"));
@@ -53,6 +61,7 @@ builder.Services.AddControllers().AddOData(o =>
 });
 builder.Services.AddScoped<AuthenticationStateProvider, MCrossList.Client.ApplicationAuthenticationStateProvider>();
 builder.Services.AddScoped<MCrossList.Client.Services.IVintedService, MCrossList.Client.Services.VintedService>();
+builder.Services.AddScoped<MCrossList.Client.dbService>();
 var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
